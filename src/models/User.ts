@@ -18,22 +18,7 @@ export interface IUser extends Document {
   email: string;
   name: { first: string; last: string };
   password: string;
-  addresses: IUserAddress[];
 }
-
-export const addressSchema: Schema = new Schema({
-  city: { type: String, required: true },
-  country: { type: String, required: true },
-  name: {
-    first: { type: String, required: true },
-    last: { type: String, required: true },
-  },
-  phone: { type: String, required: true },
-  postalCode: { type: String },
-  region: { type: String, required: true },
-  type: { type: String, default: 'home' },
-  details: { type: String, required: true },
-});
 
 const userSchema: Schema = new Schema<IUser>(
   {
@@ -50,10 +35,6 @@ const userSchema: Schema = new Schema<IUser>(
       last: { type: String, required: true },
     },
     password: { type: String, required: true },
-    addresses: {
-      type: [addressSchema],
-      default: [],
-    },
   },
   {
     timestamps: true,
