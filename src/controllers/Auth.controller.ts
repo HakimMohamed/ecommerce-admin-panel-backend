@@ -29,65 +29,6 @@ export async function getUser(
   }
 }
 
-export async function verifyOtp(
-  req: Request<{}, {}, VerifyOtpDto>,
-  res: Response<VerifyOtpResponse>,
-  next: NextFunction
-): Promise<void> {
-  const { email, otp } = req.body;
-  try {
-    const user = await AuthService.getUserByEmail(email);
-
-    if (!user) {
-      res.status(404).send({
-        message: `No user found with email ${email}.`,
-        data: null,
-        success: true,
-      });
-      return;
-    }
-
-    const otpDoc = await AuthService.getUserOtpByDate({ email });
-
-    if (!otpDoc || (otpDoc && otpDoc.trials >= 3)) {
-      res.status(410).send({
-        message: 'OTP expired.',
-        success: false,
-        data: null,
-      });
-      return;
-    }
-
-    const isMatch = await bcrypt.compare(otp, otpDoc.otp);
-
-    if (!isMatch) {
-      await AuthService.increaseOtpAttempts(otpDoc._id.toString());
-      res.status(403).send({
-        message: 'Invalid OTP.',
-        success: false,
-        data: null,
-      });
-      return;
-    }
-
-    const { refreshToken, accessToken } = AuthService.generateTokens(user._id.toString(), email);
-
-    await Promise.all([AuthService.verifyUserOtp(otpDoc._id)]);
-
-    res.status(200).send({
-      message: 'Email verified successfully.',
-      data: {
-        refreshToken,
-        accessToken,
-        user,
-      },
-      success: true,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-}
-
 export async function login(
   req: Request<{}, {}, LoginDto>,
   res: Response<AuthDataResponse>,
@@ -132,6 +73,61 @@ export async function login(
       });
       return;
     }
+    next(error);
+  }
+}
+
+export async function verifyOtp(
+  req: Request<{}, {}, VerifyOtpDto>,
+  res: Response<VerifyOtpResponse>,
+  next: NextFunction
+): Promise<void> {
+  const { email, otp } = req.body;
+  try {
+    const user = await AuthService.getUserByEmail(email);
+
+    if (!user) {
+      res.status(404).send({
+        message: `No user found with email ${email}.`,
+        data: null,
+        success: true,
+      });
+      return;
+    }
+
+    const otpDoc = await AuthService.getUserOtpByDate({ email });
+
+    if (!otpDoc || (otpDoc && otpDoc.trials >= 3)) {
+      res.status(410).send({
+        message: 'OTP expired.',
+        success: false,
+        data: null,
+      });
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(otp, otpDoc.otp);
+
+    if (!isMatch) {
+      await AuthService.increaseOtpAttempts(otpDoc._id.toString());
+      res.status(403).send({
+        message: 'Invalid OTP.',
+        success: false,
+        data: null,
+      });
+      return;
+    }
+
+    const token = AuthService.generateAccessToken(user._id.toString(), email);
+
+    await Promise.all([AuthService.verifyUserOtp(otpDoc._id)]);
+
+    res.status(200).send({
+      message: 'Email verified successfully.',
+      data: token,
+      success: true,
+    });
+  } catch (error: any) {
     next(error);
   }
 }

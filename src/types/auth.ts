@@ -31,9 +31,5 @@ export interface LogOutResponse extends BaseResponse {
 }
 
 export interface VerifyOtpResponse extends BaseResponse {
-  data: {
-    accessToken: string;
-    refreshToken: string;
-    user: IUser;
-  } | null;
+  data: string | null;
 }
