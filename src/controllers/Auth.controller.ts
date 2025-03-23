@@ -72,10 +72,7 @@ export async function verifyOtp(
 
     const { refreshToken, accessToken } = AuthService.generateTokens(user._id.toString(), email);
 
-    await Promise.all([
-      AuthService.verifyUserOtp(otpDoc._id),
-      AuthService.createSession(user._id.toString(), refreshToken),
-    ]);
+    await Promise.all([AuthService.verifyUserOtp(otpDoc._id)]);
 
     res.status(200).send({
       message: 'Email verified successfully.',
@@ -145,21 +142,6 @@ export async function logout(
   next: NextFunction
 ) {
   try {
-    const refreshToken = req.body.refreshToken;
-
-    const session = await AuthService.validateRefreshToken(refreshToken);
-
-    if (!session) {
-      res.status(403).send({
-        message: 'Invalid refresh token.',
-        data: null,
-        success: false,
-      });
-      return;
-    }
-
-    await AuthService.removeRefreshTokenFromUser(session._user.toString(), refreshToken);
-
     res.status(200).send({
       message: 'Logout successful',
       data: null,

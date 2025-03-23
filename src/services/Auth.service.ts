@@ -1,5 +1,4 @@
 import User, { IUser } from '../models/User';
-import Session, { ISession } from '../models/Session';
 import UserOtp, { IUserOtp } from '../models/UserOtp';
 import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
@@ -12,25 +11,6 @@ import EmailService from './Email.service';
 
 class UserService {
   constructor() {}
-  async validateRefreshToken(refreshToken: string): Promise<ISession | null> {
-    try {
-      const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET!) as { userId: string };
-
-      const session = await Session.findOne({
-        key: refreshToken,
-        _user: decoded.userId,
-        status: 'active',
-      }).lean();
-
-      if (!session) {
-        return null;
-      }
-
-      return session;
-    } catch (error) {
-      return null;
-    }
-  }
   generateTokens(userId: string, email: string): { accessToken: string; refreshToken: string } {
     return {
       accessToken: this.generateAccessToken(userId, email),
@@ -122,14 +102,8 @@ class UserService {
   async verifyUserOtp(otpDocId: Types.ObjectId): Promise<void> {
     await UserOtp.updateOne({ _id: otpDocId }, { otpEntered: true });
   }
-  async removeRefreshTokenFromUser(userId: string, refreshToken: string): Promise<void> {
-    await Session.deleteOne({ _user: toObjectId(userId), key: refreshToken });
-  }
   async increaseOtpAttempts(id: string): Promise<UpdateResult> {
     return UserOtp.updateOne({ _id: toObjectId(id) }, { $inc: { trials: 1 } });
-  }
-  async createSession(userId: string, refreshToken: string): Promise<ISession> {
-    return Session.create({ key: refreshToken, _user: toObjectId(userId) });
   }
 }
 
