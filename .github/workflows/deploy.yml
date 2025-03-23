@@ -1,0 +1,86 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main # Adjust to your deployment branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Build the project
+      - name: Build project
+        run: npm run build
+
+      # Archive the build output along with node_modules
+      - name: Archive build output
+        run: tar -czf build.tar.gz dist node_modules package.json package-lock.json
+
+      # Upload artifact using v4
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build.tar.gz
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      # Download the artifact using v4
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+
+      - name: Deploy to EC2
+        env:
+          EC2_USER: ubuntu
+          EC2_HOST: ${{ secrets.EC2_ELASTIC_IP }}
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          # Copy the build artifact to the EC2 instance
+          scp -o StrictHostKeyChecking=no build.tar.gz $EC2_USER@$EC2_HOST:/home/ubuntu/thareeh-designs-backend
+
+          # Connect to EC2 and set up the application
+          ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'EOF'
+            cd /home/ubuntu/thareeh-designs-backend
+            
+            # Extract the archive
+            tar -xzf build.tar.gz
+
+            # Move environment files if required
+            cp -n ../.env . || echo "Environment file exists"
+            cp -r ../enviroment . || echo "Environment folder exists"
+
+            # Install PM2 globally if not installed
+            if ! command -v pm2 &> /dev/null; then
+              npm install -g pm2
+            fi
+
+            # Start or restart the application using PM2
+            if ! pm2 describe thareeh-backend > /dev/null; then
+              pm2 start dist/index.js --name thareeh-backend
+            else
+              pm2 restart thareeh-backend
+            fi
+
+            # Save the PM2 process list
+            pm2 save
+
+          EOF
