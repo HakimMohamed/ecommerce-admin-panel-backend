@@ -39,7 +39,7 @@ export async function login(
   try {
     const user = await AuthService.getUserByEmail(email);
     if (!user) {
-      res.status(401).send({
+      res.status(400).send({
         message: 'Either email or password is incorrect.',
         data: null,
         success: false,
@@ -49,7 +49,7 @@ export async function login(
 
     const isPasswordValid = await AuthService.validateUser(user, password);
     if (!isPasswordValid) {
-      res.status(401).send({
+      res.status(400).send({
         message: 'Either email or password is incorrect.',
         data: null,
         success: false,
