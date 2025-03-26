@@ -37,3 +37,8 @@ export const verifyOtpSchema = [
     .isLength({ min: 4, max: 4 })
     .withMessage('Otp must be exactly 4 characters long.'),
 ];
+
+export const getTicketsSchema = [
+  query('page').optional().isNumeric().withMessage('Page must be a number.') /*.toInt()*/,
+  query('pageSize').optional().isNumeric().withMessage('Limit must be a number.') /*.toInt()*/,
+];
