@@ -9,14 +9,23 @@ class TicketsService {
   async getTickets(
     page: number,
     pageSize: number,
-    searchText: string
+    searchText: string,
+    status: string[]
   ): Promise<[ITicket[] | [], number]> {
+    const match: any = {};
+
+    if (searchText) {
+      match['user.email'] = { $regex: searchText, $options: 'i' };
+    }
+
+    if (status && status.length) {
+      match['status'] = { $in: status };
+    }
+
     const [tickets, count] = await Promise.all([
       Tickets.aggregate([
         {
-          $match: {
-            'user.email': { $regex: new RegExp(searchText, 'i') },
-          },
+          $match: match,
         },
         {
           $skip: (page - 1) * pageSize,
