@@ -34,11 +34,8 @@ class TicketsService {
         {
           $limit: pageSize,
         },
-      ])
-        .limit(pageSize)
-        .skip((page - 1) * pageSize)
-        .toArray() as Promise<ITicket[] | []>,
-      Tickets.countDocuments(),
+      ]).toArray() as Promise<ITicket[] | []>,
+      Tickets.countDocuments(match),
     ]);
 
     return [tickets, count];

@@ -20,7 +20,7 @@ export async function getTickets(
     const [tickets, count] = await TicketsService.getTickets(page, pageSize, searchText, status);
 
     res.status(200).send({
-      message: `User fetched successfully.`,
+      message: `Tickets fetched successfully.`,
       data: { tickets, count },
       success: true,
     });
@@ -39,7 +39,7 @@ export async function updateTicketStatus(
     await TicketsService.updateTicketStatus(ticketId, status);
 
     res.status(200).send({
-      message: `User fetched successfully.`,
+      message: `Tickets fetched successfully.`,
       success: true,
     });
   } catch (error: any) {
