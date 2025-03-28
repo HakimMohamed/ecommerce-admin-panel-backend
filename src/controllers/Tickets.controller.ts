@@ -28,3 +28,21 @@ export async function getTickets(
     next(error);
   }
 }
+
+export async function updateTicketStatus(
+  req: Request<{}, {}, { ticketId: string; status: string }>,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const { ticketId, status } = req.body;
+  try {
+    await TicketsService.updateTicketStatus(ticketId, status);
+
+    res.status(200).send({
+      message: `User fetched successfully.`,
+      success: true,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+}

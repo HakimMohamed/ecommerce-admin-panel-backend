@@ -42,3 +42,8 @@ export const getTicketsSchema = [
   query('page').optional().isNumeric().withMessage('Page must be a number.') /*.toInt()*/,
   query('pageSize').optional().isNumeric().withMessage('Limit must be a number.') /*.toInt()*/,
 ];
+
+export const updateTicketSchema = [
+  body('ticketId').exists({ checkFalsy: true }).withMessage('Ticket ID is required.'),
+  body('status').exists({ checkFalsy: true }).withMessage('Status is required.'),
+];

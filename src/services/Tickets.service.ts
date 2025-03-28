@@ -1,5 +1,6 @@
 import SecondaryDB from '../config/database.secondary';
 import { ITicket } from '../types/ticket';
+import { toObjectId } from '../utils/helpers';
 
 const db = SecondaryDB.getInstance();
 const Tickets = db.getCollection('Tickets');
@@ -41,6 +42,9 @@ class TicketsService {
     ]);
 
     return [tickets, count];
+  }
+  async updateTicketStatus(ticketId: string, status: string): Promise<void> {
+    await Tickets.updateOne({ _id: toObjectId(ticketId) }, { $set: { status } });
   }
 }
 
