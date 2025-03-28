@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import ItemsService from '../services/Items.service';
-import { GetItemsReposne } from '../types/items';
+import { GetItemsReposne, IItem } from '../types/items';
 
 export async function getItems(
   req: Request<{}, {}, {}, { page?: string; pageSize?: string; searchText?: string }>,
@@ -18,6 +18,26 @@ export async function getItems(
     res.status(200).send({
       message: `Items fetched successfully.`,
       data: { items, count },
+      success: true,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+}
+
+export async function updateItems(
+  req: Request<{}, {}, IItem[]>,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const updatedItems = req.body;
+
+  try {
+    const result = await ItemsService.updateItems(updatedItems);
+
+    res.status(200).send({
+      message: `Items fetched successfully.`,
+      data: '',
       success: true,
     });
   } catch (error: any) {

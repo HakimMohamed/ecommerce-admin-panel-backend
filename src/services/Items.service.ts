@@ -1,9 +1,10 @@
+import mongoose from 'mongoose';
 import SecondaryDB from '../config/database.secondary';
 import { IItem } from '../types/items';
-import { ITicket } from '../types/ticket';
+import { toObjectId } from '../utils/helpers';
 
 const db = SecondaryDB.getInstance();
-const Items = db.getCollection('Items');
+const Item = db.getCollection('Items');
 
 class ItemsService {
   constructor() {}
@@ -19,7 +20,7 @@ class ItemsService {
     }
 
     const [items, count] = await Promise.all([
-      Items.aggregate([
+      Item.aggregate([
         {
           $match: match,
         },
@@ -30,10 +31,26 @@ class ItemsService {
           $limit: pageSize,
         },
       ]).toArray() as Promise<IItem[] | []>,
-      Items.countDocuments(match),
+      Item.countDocuments(match),
     ]);
 
     return [items, count];
+  }
+  async updateItems(updatedItems: IItem[]): Promise<mongoose.mongo.BulkWriteResult> {
+    const bulkOps = updatedItems.map(item => ({
+      updateOne: {
+        filter: { _id: toObjectId(item._id) },
+        update: {
+          $set: {
+            ...item,
+            _id: toObjectId(item._id),
+            ...(item.price !== undefined && { price: Number(item.price) }),
+          },
+        },
+      },
+    }));
+
+    return Item.bulkWrite(bulkOps);
   }
 }
 
