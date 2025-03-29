@@ -33,10 +33,28 @@ export async function updateItems(
   const updatedItems = req.body;
 
   try {
-    const result = await ItemsService.updateItems(updatedItems);
+    await ItemsService.updateItems(updatedItems);
 
     res.status(200).send({
-      message: `Items fetched successfully.`,
+      message: `Items updated successfully.`,
+      data: '',
+      success: true,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+}
+
+export async function deleteItem(
+  req: Request<{}, {}, {}, { itemId: string }>,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    await ItemsService.deleteItem(req.query.itemId);
+
+    res.status(200).send({
+      message: `Items deleted successfully.`,
       data: '',
       success: true,
     });

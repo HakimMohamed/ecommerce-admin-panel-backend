@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { DeleteResult } from 'mongoose';
 import SecondaryDB from '../config/database.secondary';
 import { IItem } from '../types/items';
 import { toObjectId } from '../utils/helpers';
@@ -51,6 +51,9 @@ class ItemsService {
     }));
 
     return Item.bulkWrite(bulkOps);
+  }
+  async deleteItem(itemId: string): Promise<DeleteResult> {
+    return Item.deleteOne({ _id: toObjectId(itemId) });
   }
 }
 
