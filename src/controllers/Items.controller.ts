@@ -62,3 +62,21 @@ export async function deleteItem(
     next(error);
   }
 }
+
+export async function addItem(
+  req: Request<{}, {}, Omit<IItem, '_id'>>,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    await ItemsService.addItem(req.body);
+
+    res.status(200).send({
+      message: `Items added successfully.`,
+      data: '',
+      success: true,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+}

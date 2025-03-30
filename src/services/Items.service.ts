@@ -1,4 +1,4 @@
-import mongoose, { DeleteResult } from 'mongoose';
+import mongoose, { DeleteResult, InsertManyResult } from 'mongoose';
 import SecondaryDB from '../config/database.secondary';
 import { IItem } from '../types/items';
 import { toObjectId } from '../utils/helpers';
@@ -23,6 +23,11 @@ class ItemsService {
       Item.aggregate([
         {
           $match: match,
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
         },
         {
           $skip: (page - 1) * pageSize,
@@ -54,6 +59,9 @@ class ItemsService {
   }
   async deleteItem(itemId: string): Promise<DeleteResult> {
     return Item.deleteOne({ _id: toObjectId(itemId) });
+  }
+  async addItem(item: Omit<IItem, '_id'>): Promise<mongoose.mongo.InsertOneResult<IItem>> {
+    return Item.insertOne(item);
   }
 }
 
