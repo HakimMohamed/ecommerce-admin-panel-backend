@@ -80,7 +80,7 @@ function validateItem(item: IItem): boolean {
     if (typeof item.discount.active !== 'boolean') return false;
     if (typeof item.discount.value !== 'number') return false;
   }
-  if (item.active !== undefined && typeof item.active !== 'string') return false;
+  if (item.active !== undefined && typeof item.active !== 'boolean') return false;
   return true;
 }
 
