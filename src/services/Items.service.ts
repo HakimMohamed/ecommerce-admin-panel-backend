@@ -50,6 +50,7 @@ class ItemsService {
             ...item,
             _id: toObjectId(item._id),
             ...(item.price !== undefined && { price: Number(item.price) }),
+            ...(item.discount !== undefined && { discount: item.discount }),
           },
         },
       },
