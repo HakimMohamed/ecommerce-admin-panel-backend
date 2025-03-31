@@ -42,19 +42,23 @@ class ItemsService {
     return [items, count];
   }
   async updateItems(updatedItems: IItem[]): Promise<mongoose.mongo.BulkWriteResult> {
-    const bulkOps = updatedItems.map(item => ({
-      updateOne: {
-        filter: { _id: toObjectId(item._id) },
-        update: {
-          $set: {
-            ...item,
-            _id: toObjectId(item._id),
-            ...(item.price !== undefined && { price: Number(item.price) }),
-            ...(item.discount !== undefined && { discount: item.discount }),
-          },
+    const bulkOps = updatedItems.map(item => {
+      const updateFields: Partial<IItem> = {};
+
+      if (item.name !== undefined) updateFields.name = item.name;
+      if (item.price !== undefined) updateFields.price = Number(item.price);
+      if (item.description !== undefined) updateFields.description = item.description;
+      if (item.image !== undefined) updateFields.image = item.image;
+      if (item.category !== undefined) updateFields.category = item.category;
+      if (item.discount !== undefined) updateFields.discount = item.discount;
+
+      return {
+        updateOne: {
+          filter: { _id: toObjectId(item._id) },
+          update: { $set: updateFields },
         },
-      },
-    }));
+      };
+    });
 
     return Item.bulkWrite(bulkOps);
   }
