@@ -12,6 +12,7 @@ export interface IItem extends Document {
     active: boolean;
     value: number;
   };
+  active: string;
 }
 
 export interface GetItemsReposne extends BaseResponse {

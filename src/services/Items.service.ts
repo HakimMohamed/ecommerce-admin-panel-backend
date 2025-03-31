@@ -51,6 +51,7 @@ class ItemsService {
       if (item.image !== undefined) updateFields.image = item.image;
       if (item.category !== undefined) updateFields.category = item.category;
       if (item.discount !== undefined) updateFields.discount = item.discount;
+      if (item.active !== undefined) updateFields.active = item.active;
 
       return {
         updateOne: {
