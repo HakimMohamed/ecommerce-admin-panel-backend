@@ -7,13 +7,14 @@ export async function getBannerSettings(
   next: NextFunction
 ): Promise<void> {
   try {
-    const { text, color } = await bannerService.getBannerSettings();
+    const { text, color, textColor } = await bannerService.getBannerSettings();
 
     res.status(200).json({
       message: 'Image uploaded successfully',
       data: {
         text,
         color,
+        textColor,
       },
       success: true,
     });
@@ -28,7 +29,7 @@ export async function updateBannerSettings(
   next: NextFunction
 ): Promise<void> {
   try {
-    await bannerService.updateBannerSettings(req.body.text, req.body.color);
+    await bannerService.updateBannerSettings(req.body.text, req.body.color, req.body.textColor);
 
     res.status(200).json({
       message: 'Image uploaded successfully',
