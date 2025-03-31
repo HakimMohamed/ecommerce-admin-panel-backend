@@ -69,6 +69,9 @@ class ItemsService {
     return Item.deleteOne({ _id: toObjectId(itemId) });
   }
   async addItem(item: Omit<IItem, '_id'>): Promise<mongoose.mongo.InsertOneResult<IItem>> {
+    if (!validateItem(item as IItem)) {
+      throw new Error('Invalid item data');
+    }
     return Item.insertOne(item);
   }
 }
