@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import OrderService from '../services/Order.service';
+import { IOrder } from '../types/order';
 
 export async function getOrders(
   req: Request<{}, {}, {}, { page?: string; pageSize?: string; searchText?: string }>,
@@ -16,6 +17,34 @@ export async function getOrders(
     res.status(200).send({
       message: `Orders fetched successfully.`,
       data: { orders, count },
+      success: true,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+}
+
+export async function updateOrderStatus(
+  req: Request<{}, {}, { orderId: IOrder['status']; status: string }>,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const { orderId, status } = req.body;
+  if (
+    status !== 'pending' &&
+    status !== 'active' &&
+    status !== 'delivered' &&
+    status !== 'cancelled'
+  ) {
+    res.status(400).send({ message: 'Invalid status', success: false });
+    return;
+  }
+
+  try {
+    await OrderService.updateOrderStatus(orderId, status);
+
+    res.status(200).send({
+      message: `Order updated successfully.`,
       success: true,
     });
   } catch (error: any) {

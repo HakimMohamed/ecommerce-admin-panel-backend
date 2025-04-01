@@ -1,5 +1,6 @@
 import SecondaryDB from '../config/database.secondary';
 import { IOrder } from '../types/order';
+import { toObjectId } from '../utils/helpers';
 
 const db = SecondaryDB.getInstance();
 const Order = db.getCollection('Orders');
@@ -38,6 +39,23 @@ class OrderService {
     ]);
 
     return [orders, count];
+  }
+  async updateOrderStatus(orderId: IOrder['status'], status: string): Promise<void> {
+    const updateObject: any = {};
+
+    if (status) {
+      if (status === 'pending' || status === 'active') {
+        updateObject['payment.status'] = 'pending';
+      }
+
+      if (status === 'delivered') {
+        updateObject['payment.status'] = 'success';
+      }
+
+      updateObject['status'] = status;
+    }
+
+    await Order.updateOne({ _id: toObjectId(orderId) }, { $set: updateObject });
   }
 }
 

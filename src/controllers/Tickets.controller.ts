@@ -39,7 +39,7 @@ export async function updateTicketStatus(
     await TicketsService.updateTicketStatus(ticketId, status);
 
     res.status(200).send({
-      message: `Tickets fetched successfully.`,
+      message: `Ticket updated successfully.`,
       success: true,
     });
   } catch (error: any) {
