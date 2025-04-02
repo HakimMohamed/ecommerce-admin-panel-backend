@@ -77,7 +77,6 @@ class ItemsService {
 }
 
 function validateItem(item: IItem): boolean {
-  if (!item._id) return false;
   if (item.price !== undefined && isNaN(Number(item.price))) return false;
   if (item.discount) {
     if (typeof item.discount.active !== 'boolean') return false;
