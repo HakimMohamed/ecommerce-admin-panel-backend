@@ -42,9 +42,7 @@ class ItemsService {
     return [items, count];
   }
   async updateItems(updatedItems: IItem[]): Promise<mongoose.mongo.BulkWriteResult> {
-    const validItems = updatedItems.filter(validateItem);
-
-    const bulkOps = validItems.map(item => {
+    const bulkOps = updatedItems.map(item => {
       const updateFields: Partial<IItem> = {};
 
       if (item.name !== undefined) updateFields.name = item.name;
@@ -69,21 +67,8 @@ class ItemsService {
     return Item.deleteOne({ _id: toObjectId(itemId) });
   }
   async addItem(item: Omit<IItem, '_id'>): Promise<mongoose.mongo.InsertOneResult<IItem>> {
-    if (!validateItem(item as IItem)) {
-      throw new Error('Invalid item data');
-    }
     return Item.insertOne(item);
   }
-}
-
-function validateItem(item: IItem): boolean {
-  if (item.price !== undefined && isNaN(Number(item.price))) return false;
-  if (item.discount) {
-    if (typeof item.discount.active !== 'boolean') return false;
-    if (typeof item.discount.value !== 'number') return false;
-  }
-  if (item.active !== undefined && typeof item.active !== 'boolean') return false;
-  return true;
 }
 
 export default new ItemsService();
