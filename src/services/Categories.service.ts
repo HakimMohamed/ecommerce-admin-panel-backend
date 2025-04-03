@@ -25,6 +25,12 @@ class CategoriesService {
           $match: match,
         },
         {
+          $sort: {
+            order: 1,
+            _id: 1,
+          },
+        },
+        {
           $skip: (page - 1) * pageSize,
         },
         {
